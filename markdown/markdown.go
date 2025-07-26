@@ -13,8 +13,14 @@ import (
 
 func Convert(content string, scanner *bufio.Scanner, builder *strings.Builder, post *output.Post) string {
 	line := bytes.TrimSpace(scanner.Bytes())
+	// handle html formatting
 	if len(line) > 0 {
 		handleHeadings(line, content, builder, post)
 	}
+	// add line breaks after first line
+	if builder.String() != `{{ define "content" }}` {
+		builder.WriteString("<br>")
+	}
+	builder.WriteString("\n")
 	return builder.String()
 }

@@ -40,7 +40,7 @@ const tpl = `
         </div>
         <div id="postbody">
           <div id="preview">{{.Preview}}</div>
-          <div id="content">{{.Body}}</div>
+          <div id="content">{{ template "content" . }}</div>
         </div>
       </div>
     </div>
@@ -51,6 +51,11 @@ func Build(post Post) {
 	t, err := template.New("webpage").Parse(tpl)
 	if err != nil {
 		log.Fatal("error building webpage:", err)
+	}
+
+	t, err = t.Parse(post.Body)
+	if err != nil {
+		log.Fatal("error building content:", err)
 	}
 	err = t.Execute(os.Stdout, post)
 }
