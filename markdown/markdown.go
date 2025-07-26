@@ -5,15 +5,16 @@ package markdown
 import (
 	"bufio"
 	"bytes"
-	"fmt"
+	"github.com/violetcircus/viviblogger/output"
 	"strings"
 )
 
-func Convert(content string, scanner *bufio.Scanner) {
-	var builder strings.Builder
+// post title will be first h1. somehow need to figure out what the preview is, too
+
+func Convert(content string, scanner *bufio.Scanner, builder *strings.Builder, post *output.Post) string {
 	line := bytes.TrimSpace(scanner.Bytes())
 	if len(line) > 0 {
-		handleHeadings(line, content, &builder)
+		handleHeadings(line, content, builder, post)
 	}
-	fmt.Println(builder.String())
+	return builder.String()
 }
