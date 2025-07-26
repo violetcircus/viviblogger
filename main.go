@@ -2,11 +2,9 @@ package main
 
 import (
 	"bufio"
-	"bytes"
-	"fmt"
+	"github.com/violetcircus/viviblogger/markdown"
 	"log"
 	"os"
-	"strings"
 )
 
 func main() {
@@ -31,7 +29,7 @@ func Read(fileName string) {
 
 	for scanner.Scan() {
 		// lines = append(lines, scanner.Text())
-		Convert(scanner.Text(), scanner)
+		markdown.Convert(scanner.Text(), scanner)
 	}
 
 	err = scanner.Err()
@@ -42,30 +40,4 @@ func Read(fileName string) {
 	// for _, line := range lines {
 	// 	fmt.Println(line)
 	// }
-}
-
-func Convert(content string, scanner *bufio.Scanner) {
-	var builder strings.Builder
-	line := bytes.TrimSpace(scanner.Bytes())
-
-	// fmt.Println("line:", string(line))
-
-	// handle titles
-	if line[0] == '#' {
-		count := bytes.Count(line, []byte("#"))
-
-		switch count {
-		case 1:
-			headerReplacer(content, 1, &builder)
-		case 2:
-			headerReplacer(content, 2, &builder)
-		case 3:
-			headerReplacer(content, 3, &builder)
-		}
-		fmt.Println(builder.String())
-	}
-}
-func headerReplacer(line string, num int, builder *strings.Builder) {
-	str := strings.Replace(line, "#", "", -1)
-	builder.WriteString(fmt.Sprintf("<h%d>%s</h%d>", num, strings.TrimSpace(str), num))
 }
