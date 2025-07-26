@@ -25,10 +25,8 @@ func Read(fileName string) {
 
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
-	// var lines []string
 
 	for scanner.Scan() {
-		// lines = append(lines, scanner.Text())
 		markdown.Convert(scanner.Text(), scanner)
 	}
 
@@ -36,8 +34,4 @@ func Read(fileName string) {
 	if err != nil {
 		log.Fatal("scanner error:", err)
 	}
-
-	// for _, line := range lines {
-	// 	fmt.Println(line)
-	// }
 }
