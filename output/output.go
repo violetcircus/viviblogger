@@ -15,25 +15,7 @@ type Post struct {
 
 const tpl = `
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>the violet circus</title>
-    <link rel="icon" href="/favicon.png" type="image/x-icon">
-    <link href="/style.css" rel="stylesheet" type="text/css" media="all">
-    <script src="js/quote.js"></script>
-    <script src="js/dayssince.js"></script>
-  </head>
   <body>
-    <!-- title area -->
-    <div class="top">
-      <div class="title">
-        <h1>the violet circus</h1>
-        <div id="quoteDisplay"></div>
-        <br>
-      </div>
-    </div>
-    <div>
       <div id="blogpost">
         <div id="posthead">
           <div id="title"><h1>{{.Title}}</h1></div>
@@ -57,5 +39,11 @@ func Build(post Post) {
 	if err != nil {
 		log.Fatal("error building content:", err)
 	}
-	err = t.Execute(os.Stdout, post)
+	f, err := os.Create("./index.html")
+	if err != nil {
+		log.Fatal("eror writing to file", err)
+	}
+	defer f.Close()
+
+	err = t.Execute(f, post)
 }

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func handleHeadings(line []byte, content string, builder *strings.Builder, post *output.Post) {
+func handleHeadings(line []byte, content string, post *output.Post) string {
 	// count number of #s at beginning of line
 	count := bytes.Count(line, []byte("#"))
 	str := strings.Replace(content, "#", "", -1)
@@ -15,6 +15,7 @@ func handleHeadings(line []byte, content string, builder *strings.Builder, post 
 	if count == 1 && post.Title == "" {
 		post.Title = str
 	} else {
-		builder.WriteString(fmt.Sprintf("<h%d>%s</h%d>", count, strings.TrimSpace(str), count))
+		return fmt.Sprintf("<h%d>%s</h%d>", count, strings.TrimSpace(str), count)
 	}
+	return ""
 }

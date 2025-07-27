@@ -21,17 +21,17 @@ func Convert(scanner *bufio.Scanner, post *output.Post) string {
 
 		// check for line-specific formatting characters
 		if len(line) > 0 {
+			var formatted string
 			switch line[0] {
 			case '#':
-				handleHeadings(line, scanner.Text(), &builder, post)
-				builder.WriteString("\n")
-			case ' ':
-				if line[1] == '-' {
-					// handleList()
-				}
+				formatted = handleHeadings(line, scanner.Text(), post)
+			case '-':
+				handleList(line, scanner.Text())
 			default:
-				builder.WriteString(scanner.Text())
+				formatted = scanner.Text()
 			}
+			builder.WriteString(formatted)
+			builder.WriteString("\n")
 		}
 	}
 	err := scanner.Err()
@@ -43,7 +43,12 @@ func Convert(scanner *bufio.Scanner, post *output.Post) string {
 
 	// start reformatting through replacing in entire string
 	buf := handleText(builder.String())
-
-	log.Print(builder.String())
+	buf = cleanup(buf)
 	return buf
+}
+
+func cleanup(content string) string {
+	cleaned := strings.ReplaceAll(content, `\*`, "*")
+	cleaned = strings.ReplaceAll(cleaned, `\~`, "~")
+	return cleaned
 }

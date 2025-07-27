@@ -1,6 +1,6 @@
 package markdown
 
-//handle text decorations like bold, underline, italics etc. wrap anything surrounded by two newlines in a <p> tag i suppose
+//handle text decorations like bold, strikethrough, italics etc. wrap anything surrounded by two newlines in a <p> tag i suppose
 
 import (
 	"fmt"
@@ -8,17 +8,14 @@ import (
 	"strings"
 )
 
-// bold: [not an asterisk]**[text]**[not an asterisk]
 // strikethrough is ~~[text]~~
-// bold AND italic is ***[text]***
-// will just use tags manually for underlining
 
 // define replacer function
 // match = found string
 // tag = html tag string
 // char = markdown format string
 // trim = amount to trim the body of the text by - varies with number of characters used in md formatting string
-func replacer(match string, tag string, char string, trim []int) string {
+func replacer(match string, opener string, closer string, char string, trim []int) string {
 	// filters out the extra char before the first * (go uses an older regex thing. had to do extra filtering)
 	prefix := match[:1] // extra char
 	body := match[1:]   // rest of string
@@ -35,28 +32,34 @@ func replacer(match string, tag string, char string, trim []int) string {
 		fmt.Println("failed!")
 		return match
 	}
-	opener := fmt.Sprintf("<%s>", tag)
-	closer := fmt.Sprintf("</%s>", tag)
 
-	// replace the first instance of char with <tag> and second with </tag>
+	//special case for bold+italic
 	replaced := body[:start] + opener + body[start+trim[0]:end+trim[1]] + closer + body[end+1:]
-	fmt.Println("match:", match, "result:", prefix+replaced)
 	return prefix + replaced
+	// replace the first instance of char with <tag> and second with </tag>
 }
 
 // handles text. runs a find and replace over the entire html/markdown string as it exists so far
 func handleText(content string) string {
 	// regexes
-	italics := regexp.MustCompile(`(?:^|[^\\*])\*([^\s*]+?[^\s])\*`)
-	bold := regexp.MustCompile(`(?:^|[^\\*])\*\*([^\s\*][^*]+?[^\s])\*\*`)
+	italics := regexp.MustCompile(`(?:^|[^\\*])\*([^\s^*].+?[^\s])\*[^\*]`)
+	bold := regexp.MustCompile(`(?:^|[^\\*])\*\*([^\s\*].+?[^\s])\*\*`)
+	boldtalic := regexp.MustCompile(`(?:^|[^\\*])\*\*\*([^\s\*].+?[^\s])\*\*\*`)
+	strikethrough := regexp.MustCompile(`(?:^|[^\\~])\~\~([^\s\~].+?[^\s])\~\~`)
 
 	result := italics.ReplaceAllStringFunc(content, func(match string) string {
-		return replacer(match, "i", "*", []int{1, 0})
+		return replacer(match, "<i>", "</i>", "*", []int{1, 0})
 	})
 	result = bold.ReplaceAllStringFunc(result, func(match string) string {
-		return replacer(match, "b", "*", []int{2, -1})
+		return replacer(match, "<b>", "</b>", "*", []int{2, -1})
+	})
+	result = boldtalic.ReplaceAllStringFunc(result, func(match string) string {
+		return replacer(match, "<b><i>", "</b></i>", "*", []int{3, -2})
+	})
+	result = strikethrough.ReplaceAllStringFunc(result, func(match string) string {
+		return replacer(match, "<s>", "</s>", "~", []int{2, -1})
 	})
 
-	fmt.Println(result)
+	fmt.Print(result)
 	return result
 }
