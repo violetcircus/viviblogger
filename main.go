@@ -2,12 +2,11 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	// "fmt"
 	"github.com/violetcircus/viviblogger/markdown"
 	"github.com/violetcircus/viviblogger/output"
 	"log"
 	"os"
-	"strings"
 )
 
 func main() {
@@ -26,25 +25,9 @@ func Read(fileName string) {
 	}
 	defer file.Close()
 
+	var post output.Post
 	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
+	post.Body = markdown.Convert(scanner, &post)
 
-	var p output.Post
-	p.Title = ""
-
-	var builder strings.Builder
-	builder.WriteString(fmt.Sprintf(`{{ define "content" }}`))
-	for scanner.Scan() {
-		markdown.Convert(scanner.Text(), scanner, &builder, &p)
-	}
-	builder.WriteString(`{{ end }}`)
-
-	err = scanner.Err()
-	if err != nil {
-		log.Fatal("scanner error:", err)
-	}
-
-	p.Preview = "idk yet lmaoo"
-	p.Body = builder.String()
-	output.Build(p)
+	output.Build(post)
 }
