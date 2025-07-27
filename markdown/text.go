@@ -26,9 +26,9 @@ func replacer(match string, tag string, char string, trim []int) string {
 	start := strings.Index(body, char)   // first char index
 	end := strings.LastIndex(body, char) // last char index
 
-	fmt.Println(tag, "match", match)
-	fmt.Println(tag, "prefix", prefix)
-	fmt.Println(tag, "body", body)
+	// fmt.Println(tag, "match", match)
+	// fmt.Println(tag, "prefix", prefix)
+	// fmt.Println(tag, "body", body)
 
 	// if theres no asterisks then return string as-is
 	if start == -1 || end == -1 || start == end {
@@ -40,14 +40,15 @@ func replacer(match string, tag string, char string, trim []int) string {
 
 	// replace the first instance of char with <tag> and second with </tag>
 	replaced := body[:start] + opener + body[start+trim[0]:end+trim[1]] + closer + body[end+1:]
+	fmt.Println("match:", match, "result:", prefix+replaced)
 	return prefix + replaced
 }
 
 // handles text. runs a find and replace over the entire html/markdown string as it exists so far
 func handleText(content string) string {
 	// regexes
-	italics := regexp.MustCompile(`(?:^|[^\\*])\*([^*]+?)\*`)
-	bold := regexp.MustCompile(`(?:^|[^\\*])\*\*([^*]+?)\*\*`)
+	italics := regexp.MustCompile(`(?:^|[^\\*])\*([^\s*]+?[^\s])\*`)
+	bold := regexp.MustCompile(`(?:^|[^\\*])\*\*([^\s\*][^*]+?[^\s])\*\*`)
 
 	result := italics.ReplaceAllStringFunc(content, func(match string) string {
 		return replacer(match, "i", "*", []int{1, 0})
