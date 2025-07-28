@@ -4,7 +4,7 @@ this is normal text \*escaped italic* *italic* \*\*escaped bold** ** **bold * ww
 
 ~~strikethrough!~~
 
-- this is an unordered list. first item!
+- this is an unordered list. first item
 - second item of the ul
     * would you believe it this one's nested
         + even deeper nest

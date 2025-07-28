@@ -14,7 +14,7 @@ import (
 
 // post title will be first h1. somehow need to figure out what the preview is, too
 
-func Read(fileName string) {
+func Read(fileName string) output.Post {
 	file, err := os.Open(fileName)
 	if err != nil {
 		log.Fatalf("unable to open %s, %v", fileName, err)
@@ -24,8 +24,7 @@ func Read(fileName string) {
 	var post output.Post
 	scanner := bufio.NewScanner(file)
 	post.Body = convert(scanner, &post)
-
-	output.Build(post)
+	return post
 }
 
 func convert(scanner *bufio.Scanner, post *output.Post) string {
@@ -34,8 +33,9 @@ func convert(scanner *bufio.Scanner, post *output.Post) string {
 	builder.WriteString(`{{ define "content" }}`)
 
 	heading := regexp.MustCompile(`(^#{0,6}\s.)`)
-	list := regexp.MustCompile(`^(\s+(-|\+|\*|([a-z]\.)|([\d+]\.)|([i|v|x|c]+\.)))|(-\s)`)
+	// list := regexp.MustCompile(`^(\s*)([-+*]|\d+\.|[a-z]\.|[ivxc]+\.)\s`)
 
+	// prev := make([]byte, 1024)
 	for scanner.Scan() {
 		line := bytes.TrimSpace(scanner.Bytes())
 
@@ -44,8 +44,6 @@ func convert(scanner *bufio.Scanner, post *output.Post) string {
 		if len(line) > 0 {
 			if heading.FindIndex(line) != nil {
 				formatted = handleHeadings(line, scanner.Text(), post)
-			} else if list.FindIndex(line) != nil {
-				formatted = handleList(line, scanner.Text())
 			} else {
 				formatted = scanner.Text()
 			}
@@ -62,7 +60,9 @@ func convert(scanner *bufio.Scanner, post *output.Post) string {
 	builder.WriteString(`{{ end }}`)
 
 	// start reformatting through replacing in entire string
-	buf := handleText(builder.String())
+	buf := builder.String()
+	buf = handleText(buf)
+	buf = handleList(buf)
 	buf = cleanup(buf)
 	return buf
 }
