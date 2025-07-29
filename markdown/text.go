@@ -1,6 +1,6 @@
 package markdown
 
-//handle text decorations like bold, strikethrough, italics etc. wrap anything surrounded by two newlines in a <p> tag i suppose
+//handle text decorations like bold, strikethrough, italics etc. also, paragraphs! was going to skip them, but I heard screen readers use them, so they can stay.
 
 import (
 	"log"
@@ -48,11 +48,44 @@ func handleText(content string) string {
 		return tagReplacer(match, "<b>", "</b>", "*", []int{2, -1})
 	})
 	result = boldtalic.ReplaceAllStringFunc(result, func(match string) string {
-		return tagReplacer(match, "<b><i>", "</b></i>", "*", []int{3, -2})
+		return tagReplacer(match, "<b><i>", "</i></b>", "*", []int{3, -2})
 	})
 	result = strikethrough.ReplaceAllStringFunc(result, func(match string) string {
 		return tagReplacer(match, "<s>", "</s>", "~", []int{2, -1})
 	})
 
+	return result
+}
+
+func handleParagraphs(buf string) string {
+	content := strings.Split(buf, "\n")
+
+	tag := regexp.MustCompile(`({{)|(^\s*$)|[<](.{0,2}l.{0,2}|[h]\d)[>]`)
+
+	stack := []int{}
+	formatted := []string{}
+	for i, line := range content {
+		var builder strings.Builder
+		if len(stack) > 0 {
+			builder.WriteString("</p>")
+			builder.WriteString("\n")
+			stack = stack[:len(stack)-1]
+		}
+		if !tag.MatchString(line) {
+			builder.WriteString("<p>")
+			builder.WriteString(line)
+			if i < len(content) && tag.MatchString(content[i+1]) {
+				builder.WriteString("</p>")
+			} else {
+				stack = append(stack, i)
+			}
+			formatted = append(formatted, builder.String())
+		} else {
+			builder.WriteString(line)
+			formatted = append(formatted, builder.String())
+		}
+	}
+
+	result := strings.Join(formatted, "\n")
 	return result
 }

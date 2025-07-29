@@ -25,4 +25,11 @@ this is normal text \*escaped italic* *italic* \*\*escaped bold** ** **bold * ww
 2. waeqeaeha
 3. faaaaa
 waawawa
+
+[this is the link text](this/is/a/url)
+[this is the image text](../thevioletcircus/public/img/boar%20with%20exploding%20head.jpg)
+
+hi. this is a paragraph..
+
+and this is another!
 ### this is an h3

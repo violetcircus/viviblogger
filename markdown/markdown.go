@@ -23,6 +23,7 @@ func Read(fileName string) output.Post {
 
 	var post output.Post
 	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
 	post.Body = convert(scanner, &post)
 	return post
 }
@@ -33,10 +34,10 @@ func convert(scanner *bufio.Scanner, post *output.Post) string {
 	builder.WriteString(`{{ define "content" }}`)
 
 	heading := regexp.MustCompile(`(^#{0,6}\s.)`)
-	// list := regexp.MustCompile(`^(\s*)([-+*]|\d+\.|[a-z]\.|[ivxc]+\.)\s`)
 
 	// prev := make([]byte, 1024)
 	for scanner.Scan() {
+		log.Println("scanner text:", scanner.Text())
 		line := bytes.TrimSpace(scanner.Bytes())
 
 		// check for line-specific formatting characters
@@ -49,6 +50,8 @@ func convert(scanner *bufio.Scanner, post *output.Post) string {
 			}
 			builder.WriteString(formatted)
 			builder.WriteString("\n")
+		} else {
+			formatted = scanner.Text()
 		}
 	}
 
@@ -63,7 +66,10 @@ func convert(scanner *bufio.Scanner, post *output.Post) string {
 	buf := builder.String()
 	buf = handleText(buf)
 	buf = handleList(buf)
+	buf = handleParagraphs(buf)
+	buf = handleLinks(buf)
 	buf = cleanup(buf)
+	log.Print(buf)
 	return buf
 }
 

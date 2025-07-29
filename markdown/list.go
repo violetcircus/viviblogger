@@ -3,11 +3,8 @@ package markdown
 // handle lists
 
 import (
-	// "bytes"
 	"fmt"
-	// "log"
 	"regexp"
-	// "slices"
 	"strings"
 )
 
@@ -43,7 +40,6 @@ func handleList(buf string) string {
 		}
 	}
 
-	fmt.Print(strings.Join(formatted, "\n"))
 	return strings.Join(formatted, "\n")
 }
 
@@ -112,7 +108,6 @@ func listFormat(i int, content []string, checks listChecks, stack *[]listPositio
 			item := (*stack)[i]
 			if item.level > count {
 				builder.WriteString(item.tag)
-				fmt.Println("ITEM TAG!!!", item.tag)
 				*stack = (*stack)[:len(*stack)-1]
 			}
 		}
