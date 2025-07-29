@@ -45,6 +45,6 @@ func Build(post Post) {
 	}
 	defer f.Close()
 
-	err = t.Execute(os.Stdout, post)
+	// err = t.Execute(os.Stdout, post)
 	err = t.Execute(f, post)
 }

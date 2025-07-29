@@ -4,38 +4,57 @@ package markdown
 
 import (
 	// "bytes"
-	"log"
+	"fmt"
+	// "log"
 	"regexp"
+	// "slices"
 	"strings"
 )
 
+type listChecks struct {
+	list *regexp.Regexp
+	ul   *regexp.Regexp
+	ol   *regexp.Regexp
+}
+
+type listPosition struct {
+	level int
+	tag   string
+}
+
+// type listStack struct {
+// 	stack []listPosition
+// }
+
 func handleList(buf string) string {
-	// line []byte, prev string, content string
 	content := strings.Split(buf, "\n")
 
-	ul := regexp.MustCompile(`^(\s*)([-+*]+)\s`)
-	ol := regexp.MustCompile(`^(\s*)(\d+\.|[a-z]\.|[ivxc]+\.)\s`)
+	// struct containing regex strings for formatting the lists
+	checks := listChecks{
+		list: regexp.MustCompile(`^(\s*)([-+*]|\d+\.|[a-z]\.|[ivxc]+\.)\s`),
+		ul:   regexp.MustCompile(`^(?:\s*)([-+*]+)\s`),
+		ol:   regexp.MustCompile(`^(?:\s*)(\d+\.|[a-z]\.|[ivxc]+\.)\s`),
+	}
 
+	// tab := getTab(content)
+	// stack := &listStack{}
+	stack := &[]listPosition{}
 	var formatted []string
 	for i, line := range content {
-		if ul.MatchString(line) {
-			formatted = append(formatted, unorderedList(i, content, ul))
-		} else if !ol.MatchString(line) {
-			formatted = append(formatted, orderedList(i, content, ul))
+		if checks.list.MatchString(line) {
+			formatted = append(formatted, listFormat(i, content, checks, stack))
 		} else {
 			formatted = append(formatted, line)
 		}
 	}
 
-	var result []string
-	result = append(result, content[0])
-	result = append(result, strings.Join(formatted, "\n"))
-	result = append(result, content[len(content)-1])
-
-	return strings.Join(result, "\n")
+	fmt.Print(strings.Join(formatted, "\n"))
+	return strings.Join(formatted, "\n")
 }
 
-func unorderedList(i int, content []string, ul *regexp.Regexp) string {
+func listFormat(i int, content []string, checks listChecks, stack *[]listPosition) string {
+	var builder strings.Builder
+	// get current, previous and next lines
 	line := content[i]
 	var prev string
 	if i == 0 {
@@ -50,37 +69,70 @@ func unorderedList(i int, content []string, ul *regexp.Regexp) string {
 		next = ""
 	}
 
+	// get whitespace count of previous, current and next lines
 	prevCount := len(prev) - len(strings.TrimLeft(prev, " "))
 	count := len(line) - len(strings.TrimLeft(line, " "))
+	nextCount := len(next) - len(strings.TrimLeft(next, " "))
 
-	var builder strings.Builder
+	// check whether the previous and next lines are lists
+	prevList := checks.list.MatchString(prev)
+	nextList := checks.list.MatchString(next)
 
-	line = ul.ReplaceAllString(line, "<li>")
+	// check whether the next line is the opposite type of list, whether the previous line was, and also get the correct tag to use
+	swapNext := false
+	swapPrev := false
+	var tag string
+	if checks.ul.MatchString(line) {
+		tag = "u"
+		if checks.ol.MatchString(next) {
+			swapNext = true
+		}
+		if checks.ol.MatchString(prev) {
+			swapPrev = true
+		}
+	} else if checks.ol.MatchString(line) {
+		tag = "o"
+		if checks.ul.MatchString(next) {
+			swapNext = true
+		}
+		if checks.ul.MatchString(prev) {
+			swapPrev = true
+		}
+	}
+	opener := fmt.Sprintf("<%sl>", tag)
+	closer := fmt.Sprintf("</%sl>", tag)
 
-	prevList := ul.MatchString(prev)
-	nextList := ul.MatchString(next)
+	// replace markdown list formatting with a list item tag
+	line = checks.list.ReplaceAllString(line, "<li>")
 
-	log.Println(prevCount, prev, "prevList:", prevList, nextList)
-
-	if !prevList || count > prevCount {
-		builder.WriteString("<ul>")
+	// if the previous line isnt a list, or the current line is more indented than the last one, or the previous line WAS a list, AND it was a different kind from the current type of list, AND the whitespace counts are the same, add an opening tag.
+	if !prevList || count > prevCount || prevList && swapPrev && count == prevCount {
+		*stack = append(*stack, listPosition{count, closer})
+		builder.WriteString(opener)
 		builder.WriteRune('\n')
-	} else if count < prevCount && prevCount != 0 {
-		builder.WriteString("</ul>")
-		builder.WriteRune('\n')
+		// if the current line is less indented than the previous, start closing tags
+	} else if count < prevCount {
+		// loop backwards through the stack popping the tags with higher indent levels than the current line
+		for i := len(*stack) - 1; i >= 0; i-- {
+			item := (*stack)[i]
+			if item.level > count {
+				builder.WriteString(item.tag)
+				fmt.Println("ITEM TAG!!!", item.tag)
+				*stack = (*stack)[:len(*stack)-1]
+			}
+		}
 	}
 
+	// write the content of the line finally
 	builder.WriteString(line)
 	builder.WriteString("</li>")
-	if !nextList {
+
+	// if the next line isnt a list, OR the whitespace amounts on this line and the next are the same AND it's a new type of list:
+	if !nextList || nextCount == count && swapNext == true {
 		builder.WriteRune('\n')
-		builder.WriteString("</ul>")
+		builder.WriteString(closer)
 	}
 
-	return builder.String()
-}
-
-func orderedList(i int, content []string, ol *regexp.Regexp) string {
-
-	return ""
+	result := builder.String()
+	return result
 }

@@ -11,6 +11,8 @@ this is normal text \*escaped italic* *italic* \*\*escaped bold** ** **bold * ww
             + this is just getting ridiculous
             + okay it tops out at + but it could be any number of spaces, lol
             + truly i have no clue how im gonna manage this
+                1. hiiii
+                2. test
         + cross
     * star
 - dash
