@@ -22,10 +22,6 @@ type listPosition struct {
 	tag   string
 }
 
-// type listStack struct {
-// 	stack []listPosition
-// }
-
 func handleList(buf string) string {
 	content := strings.Split(buf, "\n")
 
