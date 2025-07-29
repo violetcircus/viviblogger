@@ -11,12 +11,14 @@ import (
 	"strings"
 )
 
+// struct containing regex strings for formatting the lists
 type listChecks struct {
 	list *regexp.Regexp
 	ul   *regexp.Regexp
 	ol   *regexp.Regexp
 }
 
+// type that contains a list-closing HTML tag and how indented the line it came from was.
 type listPosition struct {
 	level int
 	tag   string
@@ -25,15 +27,12 @@ type listPosition struct {
 func handleList(buf string) string {
 	content := strings.Split(buf, "\n")
 
-	// struct containing regex strings for formatting the lists
 	checks := listChecks{
 		list: regexp.MustCompile(`^(\s*)([-+*]|\d+\.|[a-z]\.|[ivxc]+\.)\s`),
 		ul:   regexp.MustCompile(`^(?:\s*)([-+*]+)\s`),
 		ol:   regexp.MustCompile(`^(?:\s*)(\d+\.|[a-z]\.|[ivxc]+\.)\s`),
 	}
 
-	// tab := getTab(content)
-	// stack := &listStack{}
 	stack := &[]listPosition{}
 	var formatted []string
 	for i, line := range content {
