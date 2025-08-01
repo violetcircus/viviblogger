@@ -1,18 +1,17 @@
 package main
 
 import (
-	"github.com/violetcircus/viviblogger/markdown"
-	"github.com/violetcircus/viviblogger/output"
+	"github.com/violetcircus/viviblogger/htmlWriter"
+	"github.com/violetcircus/viviblogger/markdownFormatter"
 	"log"
 	"os"
 )
 
 func main() {
-	args := os.Args
 	if len(os.Args) < 2 {
 		log.Fatal("use the target filename as an argument numbnuts")
 	} else {
-		post := markdown.Read(args[1])
-		output.Build(post)
+		post := markdownFormatter.Read(os.Args[1])
+		htmlWriter.Build(post)
 	}
 }

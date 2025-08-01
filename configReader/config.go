@@ -1,0 +1,5 @@
+package configReader
+
+func getConfig() {
+
+}

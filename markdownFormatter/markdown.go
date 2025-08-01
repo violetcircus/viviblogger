@@ -1,11 +1,11 @@
-package markdown
+package markdownFormatter
 
 // the main markdown package file
 
 import (
 	"bufio"
 	"bytes"
-	"github.com/violetcircus/viviblogger/output"
+	"github.com/violetcircus/viviblogger/htmlWriter"
 	"log"
 	"os"
 	"regexp"
@@ -14,21 +14,21 @@ import (
 
 // post title will be first h1. somehow need to figure out what the preview is, too
 
-func Read(fileName string) output.Post {
+func Read(fileName string) htmlWriter.Post {
 	file, err := os.Open(fileName)
 	if err != nil {
 		log.Fatalf("unable to open %s, %v", fileName, err)
 	}
 	defer file.Close()
 
-	var post output.Post
+	var post htmlWriter.Post
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 	post.Body = convert(scanner, &post)
 	return post
 }
 
-func convert(scanner *bufio.Scanner, post *output.Post) string {
+func convert(scanner *bufio.Scanner, post *htmlWriter.Post) string {
 	// create builder to read into from the markdown file and parse line-based formatting (lists, headings)
 	var builder strings.Builder
 	builder.WriteString(`{{ define "content" }}`)

@@ -1,4 +1,4 @@
-package output
+package htmlWriter
 
 import (
 	"html/template"

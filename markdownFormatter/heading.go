@@ -1,13 +1,13 @@
-package markdown
+package markdownFormatter
 
 import (
 	"bytes"
 	"fmt"
-	"github.com/violetcircus/viviblogger/output"
+	"github.com/violetcircus/viviblogger/htmlWriter"
 	"strings"
 )
 
-func handleHeadings(line []byte, content string, post *output.Post) string {
+func handleHeadings(line []byte, content string, post *htmlWriter.Post) string {
 	// count number of #s at beginning of line
 	count := bytes.Count(line, []byte("#"))
 	str := strings.Replace(content, "#", "", -1)
