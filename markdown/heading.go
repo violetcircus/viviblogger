@@ -1,4 +1,4 @@
-package markdownFormatter
+package markdown
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package markdownFormatter
+package markdown
 
 // the main markdown package file
 
@@ -24,35 +24,51 @@ func Read(fileName string) htmlWriter.Post {
 	var post htmlWriter.Post
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
-	post.Body = convert(scanner, &post)
+	convert(scanner, &post)
 	return post
 }
 
-func convert(scanner *bufio.Scanner, post *htmlWriter.Post) string {
+func convert(scanner *bufio.Scanner, post *htmlWriter.Post) {
 	// create builder to read into from the markdown file and parse line-based formatting (lists, headings)
 	var builder strings.Builder
 	builder.WriteString(`{{ define "content" }}`)
 
 	heading := regexp.MustCompile(`(^#{0,6}\s.)`)
+	var frontMatterBuffer []string
+	var isFrontMatter bool
 
 	// prev := make([]byte, 1024)
 	for scanner.Scan() {
 		log.Println("scanner text:", scanner.Text())
 		line := bytes.TrimSpace(scanner.Bytes())
-
-		// check for line-specific formatting characters
-		var formatted string
-		if len(line) > 0 {
-			if heading.FindIndex(line) != nil {
-				formatted = handleHeadings(line, scanner.Text(), post)
+		// filter out frontmatter into its own array
+		switch isFrontMatter {
+		case false:
+			if bytes.Contains(line, []byte("---")) {
+				isFrontMatter = true
 			} else {
-				formatted = scanner.Text()
+				// check for line-specific formatting characters
+				var formatted string
+				if len(line) > 0 {
+					if heading.FindIndex(line) != nil {
+						formatted = handleHeadings(line, scanner.Text(), post)
+					} else {
+						formatted = scanner.Text()
+					}
+					builder.WriteString(formatted)
+					builder.WriteString("\n")
+				} else {
+					formatted = scanner.Text()
+				}
 			}
-			builder.WriteString(formatted)
-			builder.WriteString("\n")
-		} else {
-			formatted = scanner.Text()
+		case true:
+			if bytes.Contains(line, []byte("---")) {
+				isFrontMatter = false
+			} else {
+				frontMatterBuffer = append(frontMatterBuffer, string(line))
+			}
 		}
+
 	}
 
 	err := scanner.Err()
@@ -62,15 +78,18 @@ func convert(scanner *bufio.Scanner, post *htmlWriter.Post) string {
 	// end the template
 	builder.WriteString(`{{ end }}`)
 
+	//parse frontmatter
+	post.FrontMatter = handleFrontMatter(frontMatterBuffer)
+
 	// start reformatting through replacing in entire string
-	buf := builder.String()
-	buf = handleText(buf)
-	buf = handleList(buf)
-	buf = handleParagraphs(buf)
-	buf = handleLinks(buf)
-	buf = cleanup(buf)
-	log.Print(buf)
-	return buf
+	post.Body = builder.String()
+	post.Body = handleText(post.Body)
+	post.Body = handleList(post.Body)
+	post.Body = handleParagraphs(post.Body)
+	post.Body = handleLinks(post.Body)
+	post.Body = cleanup(post.Body)
+	log.Print(post.Body)
+	log.Print("frontmatter struct:", post.FrontMatter)
 }
 
 func cleanup(content string) string {

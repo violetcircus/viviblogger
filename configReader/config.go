@@ -6,6 +6,8 @@ type Config struct {
 	NotesDir       string
 	ImageDir       string
 	SourceImageDir string
+	TemplateFile   string
+	DateTimeFormat string
 }
 
 func GetConfig() Config {
@@ -15,6 +17,8 @@ func GetConfig() Config {
 		NotesDir:       "/home/violet/projects/viviblogger/",
 		ImageDir:       "img/",
 		SourceImageDir: "/home/violet/pictures/",
+		TemplateFile:   "blogtemplate.html",
+		DateTimeFormat: "2006-01-021504",
 	}
 	return config
 }

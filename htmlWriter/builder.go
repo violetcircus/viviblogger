@@ -1,39 +1,36 @@
 package htmlWriter
 
 import (
+	"github.com/violetcircus/viviblogger/configReader"
 	"html/template"
 	"log"
 	"os"
-
-	"github.com/violetcircus/viviblogger/configReader"
 )
 
 type Post struct {
-	FrontMatter map[string]string
+	FrontMatter FrontMatter
 	Title       string
 	Body        string
 	Preview     string
 }
 
-const tpl = `
-<html>
-  <body>
-      <div id="blogpost">
-        <div id="posthead">
-          <div id="title"><h1>{{.Title}}</h1></div>
-        </div>
-        <div id="postbody">
-          <div id="preview">{{.Preview}}</div>
-          <div id="content">{{ template "content" . }}</div>
-        </div>
-      </div>
-    </div>
-  </body>
-</html> `
+type FrontMatter struct {
+	Tags     []string
+	Created  string
+	Uploaded string
+	Updated  string
+}
 
 func Build(post Post) {
 	config := configReader.GetConfig()
-	t, err := template.New("webpage").Parse(tpl)
+
+	tpl, err := os.ReadFile(config.TemplateFile)
+	if err != nil {
+		log.Fatal("error reading template file:", err)
+	}
+	templateString := string(tpl)
+
+	t, err := template.New("webpage").Parse(templateString)
 	if err != nil {
 		log.Fatal("error building webpage:", err)
 	}

@@ -1,4 +1,4 @@
-package markdownFormatter
+package markdown
 
 //handle text decorations like bold, strikethrough, italics etc. also, paragraphs! was going to skip them, but I heard screen readers use them, so they can stay.
 
