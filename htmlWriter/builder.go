@@ -4,6 +4,8 @@ import (
 	"html/template"
 	"log"
 	"os"
+
+	"github.com/violetcircus/viviblogger/configReader"
 )
 
 type Post struct {
@@ -30,6 +32,7 @@ const tpl = `
 </html> `
 
 func Build(post Post) {
+	config := configReader.GetConfig()
 	t, err := template.New("webpage").Parse(tpl)
 	if err != nil {
 		log.Fatal("error building webpage:", err)
@@ -39,9 +42,9 @@ func Build(post Post) {
 	if err != nil {
 		log.Fatal("error building content:", err)
 	}
-	f, err := os.Create("./index.html")
+	f, err := os.Create(config.PostsDir + "index.html")
 	if err != nil {
-		log.Fatal("eror writing to file", err)
+		log.Fatal("error writing to file", err)
 	}
 	defer f.Close()
 

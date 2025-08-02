@@ -20,7 +20,7 @@ this is normal text \*escaped italic* *italic* \*\*escaped bold** ** **bold * ww
 1. this is an ordered list. wahoo!
     a. image as a list item wow [trvth bvllet](./danganronpatrue.gif)
     b. [this is the link text](https://google.com)
-        i. deepest layer
+        i. deepest layer [[normal link]]
         ii. possible
 2. waeqeaeha
 3. faaaaa
