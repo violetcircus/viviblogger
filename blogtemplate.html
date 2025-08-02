@@ -5,6 +5,7 @@
         <div id="title"><h1>{{.Title}}</h1></div>
       </div>
       <div id="postbody">
+        <div id="frontmatter">{{ template "frontmatter" . }}</div>
         <div id="preview">{{.Preview}}</div>
         <div id="content">{{ template "content" . }}</div>
       </div>

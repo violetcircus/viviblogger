@@ -39,7 +39,7 @@ func convert(scanner *bufio.Scanner, post *htmlWriter.Post) {
 
 	// prev := make([]byte, 1024)
 	for scanner.Scan() {
-		log.Println("scanner text:", scanner.Text())
+		// log.Println("scanner text:", scanner.Text())
 		line := bytes.TrimSpace(scanner.Bytes())
 		// filter out frontmatter into its own array
 		switch isFrontMatter {

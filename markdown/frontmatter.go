@@ -17,32 +17,32 @@ import (
 // im assuming all frontmatter values are formatted as list items
 func handleFrontMatter(lines []string) htmlWriter.FrontMatter {
 	field := regexp.MustCompile(`[^-*]:$`)
-	value := regexp.MustCompile(`\s*-\s*`)
+	value := regexp.MustCompile(`\s*-[^0-9]\s*`)
 
 	var result htmlWriter.FrontMatter
 	var currentField string
 	for _, line := range lines {
 		if field.MatchString(line) {
 			currentField = line
-			log.Println("frontmatter field:", currentField)
+			// log.Println("frontmatter field:", currentField)
 		} else if value.MatchString(line) {
 			switch currentField {
 			case "tags:":
 				result.Tags = append(result.Tags, value.ReplaceAllString(line, ""))
-				log.Println("frontmatter value:", result.Tags)
+				// log.Println("frontmatter value:", result.Tags)
 			case "created:":
 				result.Created = value.ReplaceAllString(line, "")
-				log.Println("frontmatter value:", result.Created)
+				// log.Println("frontmatter value:", result.Created)
 			case "uploaded:":
 				result.Uploaded = value.ReplaceAllString(line, "")
 				log.Println("frontmatter value:", result.Uploaded)
 			case "updated:":
-				log.Println("frontmatter value:", result.Updated)
+				// log.Println("frontmatter value:", result.Updated)
 				result.Updated = value.ReplaceAllString(line, "")
 			}
 		}
 	}
-	log.Printf("created: '%s'", result.Created)
+	// log.Printf("created: '%s'", result.Created)
 	if result.Uploaded == "" {
 		result.Uploaded = handleTime("uploaded")
 	}
@@ -58,7 +58,8 @@ func handleFrontMatter(lines []string) htmlWriter.FrontMatter {
 // people. this way it doesn't have to be! hooray. if you're reading this, you can easily change that:
 // simply change "updated" to an array in the struct definition and have updated behave similarly to the tags field
 // in the switch case above. to make it not track update history at all, have it delete everything in that field
-// before adding the new datetime.
+// before adding the new datetime. i believe in you. or i'll add it later as a config file option idk but it's not
+// important to me right now
 func handleTime(field string) string {
 	config := configReader.GetConfig()
 	file, err := os.OpenFile(os.Args[1], os.O_RDWR, os.ModeAppend)
@@ -78,14 +79,12 @@ func handleTime(field string) string {
 	}
 	file.Close()
 
+	// rewrite file with new values in it
 	editedFile := []byte(strings.Join(fileLines, "\n"))
-	log.Print("edited file:", string(editedFile))
 	err = os.WriteFile(os.Args[1], editedFile, 0644)
 	if err != nil {
 		log.Fatalf("error writing %s time to markdown file! %s", field, err)
 	}
-
-	// find field in the file and stick date time in there
 
 	return dateTime
 }

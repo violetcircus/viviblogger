@@ -23,7 +23,7 @@ func tagReplacer(match string, opener string, closer string, char string, trim [
 
 	// if theres no asterisks then return string as-is
 	if start == -1 || end == -1 || start == end {
-		log.Println("failed!")
+		log.Println("tag replacer failed!")
 		return match
 	}
 
