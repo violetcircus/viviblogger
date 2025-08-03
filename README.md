@@ -13,7 +13,7 @@ every item in the config is stored as "field=value", with no quotes around any v
 - DateTimeFormat: this is a string Go will use to format the time and date for tracking uploaded/created date in your blog posts. Go's reference time is the second of january 2006 at 03:04:05PM, so rearrange that into whatever format the dates in your notes use. It's a little odd, but it's not too complicated.
 
 ## usage
-after filling out your config file simply run viviblogger FILE.md and it'll process it and stick it in your posts directory.
+after filling out your config file simply run `viviblogger FILE.md` and it'll process it and stick it in your posts directory.
 
 ## installation instructions:
 ```
