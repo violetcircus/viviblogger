@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 type FrontMatter struct {
@@ -45,7 +46,7 @@ func Build(post Post) {
 	}
 
 	// add frontmatter
-	t, err = t.Parse(buildFrontMatter(post.FrontMatter))
+	t, err = t.Parse(buildFrontMatter(post.FrontMatter, config))
 	if err != nil {
 		log.Fatal("error building frontmatter:", err)
 	}
@@ -60,12 +61,25 @@ func Build(post Post) {
 	err = t.Execute(f, post)
 }
 
-func buildFrontMatter(f FrontMatter) string {
+func changeTimeFormat(input string, config configReader.Config) string {
+	t, err := time.Parse(config.DateTimeFormat, input)
+	if err != nil {
+		log.Fatal("error parsing time", err)
+	}
+	result := t.Format("02 Jan, 2006 at 15:04")
+
+	return result
+}
+
+func buildFrontMatter(f FrontMatter, config configReader.Config) string {
 	var builder strings.Builder
 	builder.WriteString(`{{ define "frontmatter" }}`)
 
+	uploaded := changeTimeFormat(f.Uploaded, config)
+	updated := changeTimeFormat(f.Updated, config)
+
 	builder.WriteString(`<div id="times">`)
-	builder.WriteString(fmt.Sprintf(`<p id="uploaded">uploaded: %s</p><p id="updated">updated: %s</p>`, f.Uploaded, f.Updated))
+	builder.WriteString(fmt.Sprintf(`<p id="uploaded">uploaded: %s</p><p id="updated">updated: %s</p>`, uploaded, updated))
 	builder.WriteString(`</div>`)
 
 	builder.WriteString(`<div id="tagcontainer">tags:`)
