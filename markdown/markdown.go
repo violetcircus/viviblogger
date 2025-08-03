@@ -12,8 +12,6 @@ import (
 	"strings"
 )
 
-// post title will be first h1. somehow need to figure out what the preview is, too
-
 func Read(fileName string) htmlWriter.Post {
 	file, err := os.Open(fileName)
 	if err != nil {
@@ -37,7 +35,6 @@ func convert(scanner *bufio.Scanner, post *htmlWriter.Post) {
 	var frontMatterBuffer []string
 	var isFrontMatter bool
 
-	// prev := make([]byte, 1024)
 	for scanner.Scan() {
 		// log.Println("scanner text:", scanner.Text())
 		line := bytes.TrimSpace(scanner.Bytes())
@@ -82,14 +79,14 @@ func convert(scanner *bufio.Scanner, post *htmlWriter.Post) {
 	post.FrontMatter = handleFrontMatter(frontMatterBuffer)
 
 	// start reformatting through replacing in entire string
+	log.Print(builder.String())
 	post.Body = builder.String()
 	post.Body = handleText(post.Body)
 	post.Body = handleList(post.Body)
 	post.Body = handleParagraphs(post.Body)
 	post.Body = handleLinks(post.Body)
 	post.Body = cleanup(post.Body)
-	log.Print(post.Body)
-	log.Print("frontmatter struct:", post.FrontMatter)
+	// log.Print("frontmatter struct:", post.FrontMatter)
 }
 
 func cleanup(content string) string {

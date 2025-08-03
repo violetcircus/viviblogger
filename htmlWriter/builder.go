@@ -50,7 +50,8 @@ func Build(post Post) {
 		log.Fatal("error building frontmatter:", err)
 	}
 
-	f, err := os.Create(config.PostsDir + "index.html")
+	log.Println("page path:", config.SiteDir+config.PostsDir+post.Title+".html")
+	f, err := os.Create(config.SiteDir + config.PostsDir + strings.TrimSpace(post.Title) + ".html")
 	if err != nil {
 		log.Fatal("error writing to file", err)
 	}
