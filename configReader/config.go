@@ -10,7 +10,6 @@ import (
 type Config struct {
 	SiteDir        string
 	PostsDir       string
-	NotesDir       string
 	ImageDir       string
 	SourceImageDir string
 	TemplateFile   string
@@ -34,9 +33,8 @@ func writeConfig() {
 	}
 	var builder strings.Builder
 	builder.WriteString("SiteDir=" + home + "\n")
-	builder.WriteString("PostsDir=\n")
-	builder.WriteString("NotesDir=\n")
-	builder.WriteString("ImageDir=\n")
+	builder.WriteString("PostsDir=posts/\n")
+	builder.WriteString("ImageDir=img/\n")
 	builder.WriteString("SourceImageDir=\n")
 	builder.WriteString("TemplateFile=\n")
 	builder.WriteString("DateTimeFormat=2006-01-021504")
@@ -74,19 +72,17 @@ func GetConfig() Config {
 		field, value, _ := strings.Cut(scanner.Text(), "=")
 		switch field {
 		case "SiteDir":
-			config.SiteDir = value
+			config.SiteDir = strings.TrimSpace(value)
 		case "PostsDir":
-			config.PostsDir = value
-		case "NotesDir":
-			config.NotesDir = value
+			config.PostsDir = strings.TrimSpace(value)
 		case "ImageDir":
-			config.ImageDir = value
+			config.ImageDir = strings.TrimSpace(value)
 		case "SourceImageDir":
-			config.SourceImageDir = value
+			config.SourceImageDir = strings.TrimSpace(value)
 		case "TemplateFile":
-			config.TemplateFile = value
+			config.TemplateFile = strings.TrimSpace(value)
 		case "DateTimeFormat":
-			config.DateTimeFormat = value
+			config.DateTimeFormat = strings.TrimSpace(value)
 		}
 	}
 
