@@ -82,7 +82,7 @@ func buildFrontMatter(f FrontMatter, config configReader.Config) string {
 	builder.WriteString(fmt.Sprintf(`<p id="uploaded">uploaded: %s</p><p id="updated">updated: %s</p>`, uploaded, updated))
 	builder.WriteString(`</div>`)
 
-	builder.WriteString(`<div id="tagcontainer">tags:`)
+	builder.WriteString(`<br><div id="tagcontainer">tags:`)
 	for _, tag := range f.Tags {
 		builder.WriteString(fmt.Sprintf(`<div id="tag">%s</div>`, tag))
 	}
